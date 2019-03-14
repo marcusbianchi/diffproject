@@ -12,7 +12,7 @@ namespace DiffProject.Services.Services
         private readonly IComparisonRepository _comparisonRepository;
         public ComparisonService(IComparisonRepository comparisonRepository)
         {
-            comparisonRepository = _comparisonRepository;
+            _comparisonRepository = comparisonRepository;
         }
         public async Task<ProcessResult> CreateNewComparisonAsync(string contentId)
         {
@@ -24,13 +24,13 @@ namespace DiffProject.Services.Services
             return await _comparisonRepository.SaveResult(processResult);
         }
 
-        public async void SaveProcessResult(ItemToProcess itemToProcessRight, ItemToProcess itemToProcessLeft)
+        public async Task<ProcessResult> SaveProcessResult(ItemToProcess itemToProcessRight, ItemToProcess itemToProcessLeft)
         {
             var processResult = await _comparisonRepository.GetResultByContentId(itemToProcessRight.ContentId);
             processResult.IsEqual = itemToProcessRight.Hash == itemToProcessLeft.Hash;
             processResult.IsEqualSize = itemToProcessRight.Size == itemToProcessLeft.Size;
             processResult.status = StatusEnum.DONE;
-            await _comparisonRepository.UpdateResultByContentId(processResult, itemToProcessRight.ContentId);
+            return await _comparisonRepository.UpdateResultByContentId(processResult, itemToProcessRight.ContentId);
         }
 
         public async Task<ProcessResult> UpdateComparisonToProcessingAsync(string contentId)

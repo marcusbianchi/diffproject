@@ -9,7 +9,6 @@ namespace DiffProject.Services.Models
         public int ProcessResultId { get; set; }
         public string ContentId { get; set; }
         public StatusEnum status { get; set; }
-        public int ProcessStatus { get; set; }
         public bool IsEqual { get; set; }
         public bool IsEqualSize { get; set; }
         //diffs
