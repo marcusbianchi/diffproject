@@ -12,14 +12,14 @@ namespace DiifProject.Test
     public class ComparisonServiceTest
     {
         [Fact]
-        public async void ShouldReturnObjectWithIdAndProperStatus()
+        public  void ShouldReturnObjectWithIdAndProperStatus()
         {
             Random rnd = new Random();
             var id = rnd.Next();
             var mockComparisonRepository = new Mock<IComparisonRepository>();
             mockComparisonRepository
                 .Setup(x => x.SaveResult(It.IsAny<ProcessResult>()))
-                .ReturnsAsync((ProcessResult processResult) =>
+                .Returns((ProcessResult processResult) =>
                 {
                     return new ProcessResult
                     {
@@ -31,7 +31,7 @@ namespace DiifProject.Test
 
 
             var comparisonService = new ComparisonService(mockComparisonRepository.Object);
-            var comparisonResult = await comparisonService.CreateNewComparisonAsync("teste");
+            var comparisonResult =  comparisonService.CreateNewComparison("teste");
 
             Assert.Equal(id, comparisonResult.ProcessResultId);
             Assert.Equal(StatusEnum.NEW, comparisonResult.status);
@@ -39,7 +39,7 @@ namespace DiifProject.Test
         }
 
         [Fact]
-        public async void ShouldUpdateObjectWithProperStatus()
+        public  void ShouldUpdateObjectWithProperStatus()
         {
             Random rnd = new Random();
             var id = rnd.Next();
@@ -47,7 +47,7 @@ namespace DiifProject.Test
 
             mockComparisonRepository
                 .Setup(x => x.UpdateResultByContentId(It.IsAny<ProcessResult>(), It.IsAny<string>()))
-                .ReturnsAsync((ProcessResult processResult, string contentId) =>
+                .Returns((ProcessResult processResult, string contentId) =>
                 {
                     return new ProcessResult
                     {
@@ -59,7 +59,7 @@ namespace DiifProject.Test
 
             mockComparisonRepository
                .Setup(x => x.GetResultByContentId(It.IsAny<string>()))
-               .ReturnsAsync((string contentId) =>
+               .Returns((string contentId) =>
                {
                    return new ProcessResult
                    {
@@ -70,25 +70,25 @@ namespace DiifProject.Test
 
 
             var comparisonService = new ComparisonService(mockComparisonRepository.Object);
-            var comparisonResult = await comparisonService.UpdateComparisonToProcessingAsync("teste");
+            var comparisonResult = comparisonService.UpdateComparisonToProcessing("teste",StatusEnum.PROCESSED_FIRST);
 
             Assert.Equal(id, comparisonResult.ProcessResultId);
-            Assert.Equal(StatusEnum.PROCESSING, comparisonResult.status);
+            Assert.Equal(StatusEnum.PROCESSED_FIRST, comparisonResult.status);
             Assert.Equal("teste", comparisonResult.ContentId);
         }
 
         [Fact]
-        public async void ShouldUpdateObjectWithProperStatusAndCompareValues()
+        public  void ShouldUpdateObjectWithProperStatusAndCompareValues()
         {
             Random rnd = new Random();
             var id = rnd.Next();
             var mockComparisonRepository = new Mock<IComparisonRepository>();
             mockComparisonRepository
                 .Setup(x => x.UpdateResultByContentId(It.IsAny<ProcessResult>(), It.IsAny<string>()))
-                .ReturnsAsync((ProcessResult processResult, string contentId) => processResult);
+                .Returns((ProcessResult processResult, string contentId) => processResult);
             mockComparisonRepository
                .Setup(x => x.GetResultByContentId(It.IsAny<string>()))
-               .ReturnsAsync((string contentId) =>
+               .Returns((string contentId) =>
                {
                    return new ProcessResult
                    {
@@ -103,7 +103,7 @@ namespace DiifProject.Test
             };
 
             var comparisonService = new ComparisonService(mockComparisonRepository.Object);
-            var comparisonResult = await comparisonService.SaveProcessResult(itemToProcess, itemToProcess);
+            var comparisonResult =  comparisonService.SaveProcessResult(itemToProcess, itemToProcess);
 
             Assert.Equal(id, comparisonResult.ProcessResultId);
             Assert.Equal(StatusEnum.DONE, comparisonResult.status);

@@ -14,30 +14,30 @@ namespace DiffProject.Services.Services
         {
             _comparisonRepository = comparisonRepository;
         }
-        public async Task<ProcessResult> CreateNewComparisonAsync(string contentId)
+        public ProcessResult CreateNewComparison(string contentId)
         {
             var processResult = new ProcessResult
             {
                 ContentId = contentId,
                 status = StatusEnum.NEW
             };
-            return await _comparisonRepository.SaveResult(processResult);
+            return  _comparisonRepository.SaveResult(processResult);
         }
 
-        public async Task<ProcessResult> SaveProcessResult(ItemToProcess itemToProcessRight, ItemToProcess itemToProcessLeft)
+        public ProcessResult SaveProcessResult(ItemToProcess itemToProcessRight, ItemToProcess itemToProcessLeft)
         {
-            var processResult = await _comparisonRepository.GetResultByContentId(itemToProcessRight.ContentId);
+            var processResult = _comparisonRepository.GetResultByContentId(itemToProcessRight.ContentId);
             processResult.IsEqual = itemToProcessRight.Hash == itemToProcessLeft.Hash;
             processResult.IsEqualSize = itemToProcessRight.Size == itemToProcessLeft.Size;
             processResult.status = StatusEnum.DONE;
-            return await _comparisonRepository.UpdateResultByContentId(processResult, itemToProcessRight.ContentId);
+            return _comparisonRepository.UpdateResultByContentId(processResult, itemToProcessRight.ContentId);
         }
 
-        public async Task<ProcessResult> UpdateComparisonToProcessingAsync(string contentId)
+        public ProcessResult UpdateComparisonToProcessing(string contentId, StatusEnum status)
         {
-            var processResult = await _comparisonRepository.GetResultByContentId(contentId);
-            processResult.status = StatusEnum.PROCESSING;
-            return await _comparisonRepository.UpdateResultByContentId(processResult, contentId);
+            var processResult = _comparisonRepository.GetResultByContentId(contentId);
+            processResult.status = status;
+            return _comparisonRepository.UpdateResultByContentId(processResult, contentId);
         }
     }
 }

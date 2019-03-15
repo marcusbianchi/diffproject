@@ -8,8 +8,8 @@ namespace DiffProject.Services.Interfaces
 {
     public interface IComparisonService
     {
-        Task<ProcessResult> SaveProcessResult(ItemToProcess itemToProcessRight, ItemToProcess itemToProcessLeft);
-        Task<ProcessResult> CreateNewComparisonAsync(string contentId);
-        Task<ProcessResult> UpdateComparisonToProcessingAsync(string contentId);
+        ProcessResult SaveProcessResult(ItemToProcess itemToProcessRight, ItemToProcess itemToProcessLeft);
+        ProcessResult CreateNewComparison(string contentId);
+        ProcessResult UpdateComparisonToProcessing(string contentId, StatusEnum status);
     }
 }

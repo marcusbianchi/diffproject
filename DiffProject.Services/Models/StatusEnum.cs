@@ -7,7 +7,8 @@ namespace DiffProject.Services.Models
     public enum StatusEnum
     {
         NEW,
-        PROCESSING,
+        PROCESSED_FIRST,
+        PROCESSED_SECOND_STARTED,
         DONE
     }
 }
