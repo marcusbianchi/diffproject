@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.28307.329
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiffProject.Service", "DiffProject.Services\DiffProject.Service.csproj", "{CAB77E58-748A-4A2B-8032-6F0F48AC445C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiifProject.Test", "DiifProjectTest\DiifProject.Test.csproj", "{9A72A36E-DE2D-476B-8EC0-F2F82F2319B3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiffProject.Test", "DiifProjectTest\DiffProject.Test.csproj", "{9A72A36E-DE2D-476B-8EC0-F2F82F2319B3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiffProject.WebAPI", "DiffProject.WebAPI\DiffProject.WebAPI.csproj", "{8F5EB6AF-8B09-4C2C-ADA0-380691609425}"
 EndProject

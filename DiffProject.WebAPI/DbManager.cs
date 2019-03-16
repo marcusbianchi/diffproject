@@ -67,11 +67,14 @@ namespace DiffProject.WebAPI
                     ContentId TEXT NULL,
                     Direction TEXT  NULL,
                     Size INTEGER NULL, 
-                    Hash TEXT  NULL
+                    Hash TEXT  NULL,
+                    Text TEXT  NULL
+
                 );
                 CREATE TABLE IF NOT EXISTS ProcessResult (
                     ProcessResultId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                     ContentId TEXT NULL,
+                    DifferencesSerialized TEXT NULL,
                     IsEqual BOOLEAN NULL,
                     IsEqualSize BOOLEAN NULL,
                     status INTEGER NULL

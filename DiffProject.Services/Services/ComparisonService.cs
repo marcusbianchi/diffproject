@@ -6,9 +6,12 @@ namespace DiffProject.Services.Services
     public class ComparisonService : IComparisonService
     {
         private readonly IProcessResultRepository _comparisonRepository;
-        public ComparisonService(IProcessResultRepository comparisonRepository)
+        private readonly IDiffenceSearchService _diffenceSearchService;
+        public ComparisonService(IProcessResultRepository comparisonRepository
+            , IDiffenceSearchService diffenceSearchService)
         {
             _comparisonRepository = comparisonRepository;
+            _diffenceSearchService = diffenceSearchService;
         }
         public ProcessResult CreateNewComparison(string contentId)
         {
@@ -25,6 +28,11 @@ namespace DiffProject.Services.Services
             var processResult = _comparisonRepository.GetResultByContentId(itemToProcessRight.ContentId);
             processResult.IsEqual = itemToProcessRight.Hash == itemToProcessLeft.Hash;
             processResult.IsEqualSize = itemToProcessRight.Size == itemToProcessLeft.Size;
+            if (processResult.IsEqualSize)
+            {
+                var diff = _diffenceSearchService.GetDifferences(itemToProcessRight.Text, itemToProcessLeft.Text, itemToProcessRight.Size);
+                processResult.Differences = diff;
+            }
             processResult.status = StatusEnum.DONE;
             return _comparisonRepository.UpdateResultByContentId(processResult, itemToProcessRight.ContentId);
         }

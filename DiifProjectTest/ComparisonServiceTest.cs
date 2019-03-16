@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 using Xunit;
 
-namespace DiifProject.Test
+namespace DiffProject.Test
 {
     public class ComparisonServiceTest
     {
@@ -28,11 +28,9 @@ namespace DiifProject.Test
                         ContentId = processResult.ContentId
                     };
                 });
-
-
-            var comparisonService = new ComparisonService(mockProcessResultRepository.Object);
+            var mockDiffenceSearchService = new Mock<IDiffenceSearchService>();
+            var comparisonService = new ComparisonService(mockProcessResultRepository.Object, mockDiffenceSearchService.Object);
             var comparisonResult =  comparisonService.CreateNewComparison("teste");
-
             Assert.Equal(id, comparisonResult.ProcessResultId);
             Assert.Equal(StatusEnum.NEW, comparisonResult.status);
             Assert.Equal("teste", comparisonResult.ContentId);
@@ -44,7 +42,6 @@ namespace DiifProject.Test
             Random rnd = new Random();
             var id = rnd.Next();
             var mockProcessResultRepository = new Mock<IProcessResultRepository>();
-
             mockProcessResultRepository
                 .Setup(x => x.UpdateResultByContentId(It.IsAny<ProcessResult>(), It.IsAny<string>()))
                 .Returns((ProcessResult processResult, string contentId) =>
@@ -56,7 +53,6 @@ namespace DiifProject.Test
                         ContentId = contentId
                     };
                 });
-
             mockProcessResultRepository
                .Setup(x => x.GetResultByContentId(It.IsAny<string>()))
                .Returns((string contentId) =>
@@ -67,11 +63,9 @@ namespace DiifProject.Test
                        ContentId = contentId
                    };
                });
-
-
-            var comparisonService = new ComparisonService(mockProcessResultRepository.Object);
+            var mockDiffenceSearchService = new Mock<IDiffenceSearchService>();
+            var comparisonService = new ComparisonService(mockProcessResultRepository.Object, mockDiffenceSearchService.Object);
             var comparisonResult = comparisonService.UpdateComparisonToProcessing("teste",StatusEnum.PROCESSED_FIRST);
-
             Assert.Equal(id, comparisonResult.ProcessResultId);
             Assert.Equal(StatusEnum.PROCESSED_FIRST, comparisonResult.status);
             Assert.Equal("teste", comparisonResult.ContentId);
@@ -101,8 +95,9 @@ namespace DiifProject.Test
                 Hash = "70A4B9F4707D258F559F91615297A3EC",
                 Size = 200
             };
+            var mockDiffenceSearchService = new Mock<IDiffenceSearchService>();
 
-            var comparisonService = new ComparisonService(mockComparisonRepository.Object);
+            var comparisonService = new ComparisonService(mockComparisonRepository.Object, mockDiffenceSearchService.Object);
             var comparisonResult =  comparisonService.SaveProcessResult(itemToProcess, itemToProcess);
 
             Assert.Equal(id, comparisonResult.ProcessResultId);

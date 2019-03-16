@@ -28,7 +28,7 @@ namespace DiffProject.Service.Repositories
         {
             using (IDbConnection conn = new SQLiteConnection(string.Format("Data Source={0};Version=3;", _dbFilePath)))
             {
-                string sQuery = "SELECT ItemToProcessId, ContentId, Direction, Size, Hash " +
+                string sQuery = "SELECT ItemToProcessId, ContentId, Direction, Size, Hash,Text " +
                     "FROM ItemToProcess WHERE contentId = @contentId";
                 conn.Open();
                 var result = await conn.QueryAsync<ItemToProcess>(sQuery, new { contentId = ContentId });
@@ -40,7 +40,7 @@ namespace DiffProject.Service.Repositories
         {
             using (IDbConnection conn = new SQLiteConnection(string.Format("Data Source={0};Version=3;", _dbFilePath)))
             {
-                string insertQuery = @"INSERT INTO ItemToProcess ([ContentId], [Direction], [Size],[Hash]) VALUES ( @ContentId, @Direction, @Size, @Hash)";
+                string insertQuery = @"INSERT INTO ItemToProcess ([ContentId], [Direction], [Size],[Hash],[Text]) VALUES ( @ContentId, @Direction, @Size, @Hash,@Text)";
                 conn.Open();
                 var result = conn.Execute(insertQuery, itemToProcess);
                 var identity = await conn.InsertAsync(itemToProcess);

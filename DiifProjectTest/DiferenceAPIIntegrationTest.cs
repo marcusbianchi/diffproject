@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace DiifProject.Test
+namespace DiffProject.Test
 {
     public class DiferenceAPIIntegrationTest : IClassFixture<WebApplicationFactory<DiffProject.WebAPI.Startup>>
     {
@@ -30,9 +30,9 @@ namespace DiifProject.Test
             var small_1 = File.ReadAllText(@".\TestSamples\Small_1.txt", Encoding.UTF8);
             var content = new StringContent(small_1, Encoding.UTF8);
             var responsePost = await client.PostAsync("/v1/" + id + "/left", content);
+            await Task.Delay(500);
             var responseGet = await (await client.GetAsync("/v1/" + id)).Content.ReadAsStringAsync();
-            var responseBody = JsonConvert.DeserializeObject<ProcessResult>(responseGet);
-            await Task.Delay(200);
+            var  responseBody = JsonConvert.DeserializeObject<ProcessResult>(responseGet);
             Assert.True(responsePost.IsSuccessStatusCode);
             Assert.Equal(StatusEnum.PROCESSED_FIRST, responseBody.status);
         }
@@ -46,7 +46,7 @@ namespace DiifProject.Test
             var small_1 = File.ReadAllText(@".\TestSamples\Small_1.txt", Encoding.UTF8);
             var content = new StringContent(small_1, Encoding.UTF8);
             var responsePostFirst = await client.PostAsync("/v1/" + id + "/left", content);
-            await Task.Delay(200);
+            await Task.Delay(500);
             var responsePostSecond = await client.PostAsync("/v1/" + id + "/left", content);
             Assert.False(responsePostSecond.IsSuccessStatusCode);
         }
@@ -60,14 +60,17 @@ namespace DiifProject.Test
             var small_1 = File.ReadAllText(@".\TestSamples\Small_1.txt", Encoding.UTF8);
             var content = new StringContent(small_1, Encoding.UTF8);
             var responsePostFirst = await client.PostAsync("/v1/" + id + "/left", content);
+            await Task.Delay(500);
             var responsePostSecond = await client.PostAsync("/v1/" + id + "/right", content);
-            await Task.Delay(200);
+            await Task.Delay(500);
             var responseGet = await (await client.GetAsync("/v1/" + id)).Content.ReadAsStringAsync();
             var responseBody = JsonConvert.DeserializeObject<ProcessResult>(responseGet);            
             Assert.Equal(StatusEnum.DONE, responseBody.status);
             Assert.True(responseBody.IsEqual);
             Assert.True(responseBody.IsEqualSize);
+            Assert.Equal(0, responseBody.Differences.Count);
         }
+
         [Fact]
         public async void ShouldIndicateIfSameSizeAndDiferentContent()
         {
@@ -79,14 +82,15 @@ namespace DiifProject.Test
             var content1 = new StringContent(small_1, Encoding.UTF8);
             var content3 = new StringContent(small_3, Encoding.UTF8);
             var responsePostFirst = await client.PostAsync("/v1/" + id + "/left", content1);
-            await Task.Delay(200);
+            await Task.Delay(500);
             var responsePostSecond = await client.PostAsync("/v1/" + id + "/right", content3);
-            await Task.Delay(200);
+            await Task.Delay(500);
             var responseGet = await (await client.GetAsync("/v1/" + id)).Content.ReadAsStringAsync();
             var responseBody = JsonConvert.DeserializeObject<ProcessResult>(responseGet);
             Assert.Equal(StatusEnum.DONE, responseBody.status);
             Assert.False(responseBody.IsEqual);
             Assert.True(responseBody.IsEqualSize);
+            Assert.Equal(1, responseBody.Differences.Count);
         }
 
         [Fact]
@@ -100,18 +104,20 @@ namespace DiifProject.Test
             var content1 = new StringContent(small_1, Encoding.UTF8);
             var content2 = new StringContent(small_2, Encoding.UTF8);
             var responsePostFirst = await client.PostAsync("/v1/" + id + "/left", content1);
-            await Task.Delay(200);
+            await Task.Delay(500);
             var responsePostSecond = await client.PostAsync("/v1/" + id + "/right", content2);
-            await Task.Delay(200);
+            await Task.Delay(500);
             var responseGet = await (await client.GetAsync("/v1/" + id)).Content.ReadAsStringAsync();
             var responseBody = JsonConvert.DeserializeObject<ProcessResult>(responseGet);
             Assert.Equal(StatusEnum.DONE, responseBody.status);
             Assert.False(responseBody.IsEqual);
             Assert.False(responseBody.IsEqualSize);
+            Assert.Null(responseBody.Differences);
+
         }
 
         [Fact]
-        public async void ShouldIndicateIfSameSizeAndDiferentContentBigFile()
+        public async void ShouldIndicateIfDifferentSizeAndDiferentContentBigFile()
         {
             Random rnd = new Random();
             var id = rnd.Next();
@@ -121,14 +127,39 @@ namespace DiifProject.Test
             var content1 = new StringContent(small_1, Encoding.UTF8);
             var content2 = new StringContent(small_2, Encoding.UTF8);
             var responsePostFirst = await client.PostAsync("/v1/" + id + "/left", content1);
-            await Task.Delay(1000);
+            await Task.Delay(500);
             var responsePostSecond = await client.PostAsync("/v1/" + id + "/right", content2);
-            await Task.Delay(1000);
+            await Task.Delay(500);
             var responseGet = await (await client.GetAsync("/v1/" + id)).Content.ReadAsStringAsync();
             var responseBody = JsonConvert.DeserializeObject<ProcessResult>(responseGet);
             Assert.Equal(StatusEnum.DONE, responseBody.status);
             Assert.False(responseBody.IsEqual);
             Assert.False(responseBody.IsEqualSize);
+            Assert.Null(responseBody.Differences);
+
+        }
+
+        [Fact]
+        public async void ShouldIndicateIfSameSizeAndDiferentContentBigFile()
+        {
+            Random rnd = new Random();
+            var id = rnd.Next();
+            var client = _factory.CreateClient();
+            var small_1 = File.ReadAllText(@".\TestSamples\big_1.txt", Encoding.UTF8);
+            var small_2 = File.ReadAllText(@".\TestSamples\big_3.txt", Encoding.UTF8);
+            var content1 = new StringContent(small_1, Encoding.UTF8);
+            var content2 = new StringContent(small_2, Encoding.UTF8);
+            var responsePostFirst = await client.PostAsync("/v1/" + id + "/left", content1);
+            await Task.Delay(2000);
+            var responsePostSecond = await client.PostAsync("/v1/" + id + "/right", content2);
+            await Task.Delay(2000);
+            var responseGet = await (await client.GetAsync("/v1/" + id)).Content.ReadAsStringAsync();
+            var responseBody = JsonConvert.DeserializeObject<ProcessResult>(responseGet);
+            Assert.Equal(StatusEnum.DONE, responseBody.status);
+            Assert.False(responseBody.IsEqual);
+            Assert.True(responseBody.IsEqualSize);
+            Assert.Equal(2, responseBody.Differences.Count);
+
         }
     }
 

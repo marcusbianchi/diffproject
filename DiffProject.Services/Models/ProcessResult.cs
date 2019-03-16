@@ -1,8 +1,6 @@
-﻿using Dapper.Contrib.Extensions;
-using System;
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
+
 
 namespace DiffProject.Services.Models
 {
@@ -13,7 +11,9 @@ namespace DiffProject.Services.Models
         public StatusEnum status { get; set; }
         public bool IsEqual { get; set; }
         public bool IsEqualSize { get; set; }
-        //diffs
+        public IList<Difference> Differences { get; set; }
+        [JsonIgnore]
+        public string DifferencesSerialized { get; set; }
 
     }
 }

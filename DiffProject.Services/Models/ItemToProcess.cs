@@ -15,5 +15,7 @@ namespace DiffProject.Services.Models
         public string Direction { get; set; }
         public int Size { get; set; }
         public string Hash { get; set; }
+        public string Text { get; set; }
+
     }
 }

@@ -25,7 +25,8 @@ namespace DiffProject.Services.Services
             {
                 ContentId = contentId,
                 Direction = direction,
-                Size = content.Length
+                Size = content.Length,
+                Text = content
             };
             var currenResult = _comparisonRepository.GetResultByContentId(contentId);
             var itemOnDb = await _itemToProcessRepository.GetDataFromDbById(contentId);

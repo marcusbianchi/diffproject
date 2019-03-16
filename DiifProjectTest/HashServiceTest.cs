@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using Xunit;
 
-namespace DiifProjectTest
+namespace DiffProject.Test
 {
     public class HashServiceTest
     {
