@@ -1,6 +1,4 @@
 ﻿using DiffProject.Services.Interfaces;
-using System;
-using System.Collections.Generic;
 using System.Text;
 
 namespace DiffProject.Services.Services

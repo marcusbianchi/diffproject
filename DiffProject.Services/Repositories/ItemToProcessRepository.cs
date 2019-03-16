@@ -10,22 +10,23 @@ using System.Data;
 using Dapper.Contrib.Extensions;
 using Dapper;
 using System.Data.SQLite;
+using System.IO;
+using System.Reflection;
 
-namespace DiffProject.Service.Services
+namespace DiffProject.Service.Repositories
 {
-    public class DataRepository : IDataRepository
+    public class ItemToProcessRepository : IItemToProcessRepository
     {
-        private readonly IConfiguration _configuration;
-        public DataRepository(IConfiguration configuration)
+        private readonly string _dbFilePath;
+        public ItemToProcessRepository(IConfiguration configuration)
         {
-            _configuration = configuration;
+            _dbFilePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
+                + configuration.GetConnectionString("ProcessContext");
         }
 
         public async Task<ItemToProcess> GetDataFromDbById(string ContentId)
         {
-
-            var dbFilePath = _configuration.GetConnectionString("ProcessContext");
-            using (IDbConnection conn = new SQLiteConnection(string.Format("Data Source={0};Version=3;", dbFilePath)))
+            using (IDbConnection conn = new SQLiteConnection(string.Format("Data Source={0};Version=3;", _dbFilePath)))
             {
                 string sQuery = "SELECT ItemToProcessId, ContentId, Direction, Size, Hash " +
                     "FROM ItemToProcess WHERE contentId = @contentId";
@@ -37,8 +38,7 @@ namespace DiffProject.Service.Services
 
         public async Task SaveDataToDB(ItemToProcess itemToProcess)
         {
-            var dbFilePath = _configuration.GetConnectionString("ProcessContext");
-            using (IDbConnection conn = new SQLiteConnection(string.Format("Data Source={0};Version=3;", dbFilePath)))
+            using (IDbConnection conn = new SQLiteConnection(string.Format("Data Source={0};Version=3;", _dbFilePath)))
             {
                 string insertQuery = @"INSERT INTO ItemToProcess ([ContentId], [Direction], [Size],[Hash]) VALUES ( @ContentId, @Direction, @Size, @Hash)";
                 conn.Open();

@@ -1,8 +1,5 @@
 ﻿using DiffProject.Services.Interfaces;
 using DiffProject.Services.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,14 +7,14 @@ namespace DiffProject.Services.Services
 {
     public class ProcessDataService : IProcessDataService
     {
-        private readonly IDataRepository _dataRepository;
-        private readonly IComparisonRepository _comparisonRepository;
+        private readonly IItemToProcessRepository _itemToProcessRepository;
+        private readonly IProcessResultRepository _comparisonRepository;
         private readonly IHashService _hashService;
         private readonly IComparisonService _comparisonService;
-        public ProcessDataService(IDataRepository dataRepository, IHashService hashService,
-            IComparisonService comparisonService, IComparisonRepository comparisonRepository)
+        public ProcessDataService(IItemToProcessRepository itemToProcessRepository, IHashService hashService,
+            IComparisonService comparisonService, IProcessResultRepository comparisonRepository)
         {
-            _dataRepository = dataRepository;
+            _itemToProcessRepository = itemToProcessRepository;
             _hashService = hashService;
             _comparisonService = comparisonService;
             _comparisonRepository = comparisonRepository;
@@ -31,7 +28,7 @@ namespace DiffProject.Services.Services
                 Size = content.Length
             };
             var currenResult = _comparisonRepository.GetResultByContentId(contentId);
-            var itemOnDb = await _dataRepository.GetDataFromDbById(contentId);
+            var itemOnDb = await _itemToProcessRepository.GetDataFromDbById(contentId);
             if (currenResult == null)
             {
                 SaveNewContentToDb(content, contentId, itemToProcess);
@@ -39,8 +36,7 @@ namespace DiffProject.Services.Services
             }
             if ((itemOnDb.Direction == "right" && direction == "left") || (itemOnDb.Direction == "left" && direction == "right"))
             {
-                ProcessContentAlreadyOnDb(content, contentId, direction, itemToProcess, itemOnDb);
-                return true;
+                return ProcessContentAlreadyOnDb(content, contentId, direction, itemToProcess, itemOnDb);
             }
             return false;
         }
@@ -52,41 +48,44 @@ namespace DiffProject.Services.Services
             {
                 itemToProcess.Hash = _hashService.CreateHash(content);
                 _comparisonService.CreateNewComparison(contentId);
-                _dataRepository.SaveDataToDB(itemToProcess);
+                _itemToProcessRepository.SaveDataToDB(itemToProcess);
                 _comparisonService.UpdateComparisonToProcessing(contentId, StatusEnum.PROCESSED_FIRST);
             }).Start();
         }
 
-        private void ProcessContentAlreadyOnDb(string content, string contentId, string direction, ItemToProcess itemToProcess, ItemToProcess itemOnDb)
+        private bool ProcessContentAlreadyOnDb(string content, string contentId, string direction, ItemToProcess itemToProcess, ItemToProcess itemOnDb)
         {
             var currenResult = _comparisonRepository.GetResultByContentId(contentId);
             if (currenResult.status == StatusEnum.NEW || currenResult.status == StatusEnum.PROCESSED_FIRST)
             {
-                while (currenResult.status != StatusEnum.PROCESSED_FIRST)
-                {
-                    currenResult = _comparisonRepository.GetResultByContentId(contentId);
-                    Thread.Sleep(100);
-                }
                 _comparisonService.UpdateComparisonToProcessing(contentId, StatusEnum.PROCESSED_SECOND_STARTED);
                 new Thread(() =>
-                       {
-                           if (itemToProcess.Size == itemOnDb.Size)
-                               itemToProcess.Hash = _hashService.CreateHash(content);
-                           else
-                               itemToProcess.Hash = "";
-                           if (itemOnDb.Direction == "right" && direction == "left")
-                           {
-                               _comparisonService.SaveProcessResult(itemOnDb, itemToProcess);
-                               _comparisonService.UpdateComparisonToProcessing(contentId, StatusEnum.DONE);
-                           }
-                           if (itemOnDb.Direction == "left" && direction == "right")
-                           {
-                               _comparisonService.SaveProcessResult(itemToProcess, itemOnDb);
-                               _comparisonService.UpdateComparisonToProcessing(contentId, StatusEnum.DONE);
-                           }
+                {
 
-                       }).Start();
+                    while (currenResult.status != StatusEnum.PROCESSED_FIRST)
+                    {
+                        currenResult = _comparisonRepository.GetResultByContentId(contentId);
+                        Thread.Sleep(100);
+                    }
+                    if (itemToProcess.Size == itemOnDb.Size)
+                        itemToProcess.Hash = _hashService.CreateHash(content);
+                    else
+                        itemToProcess.Hash = "";
+                    if (itemOnDb.Direction == "right" && direction == "left")
+                    {
+                        _comparisonService.SaveProcessResult(itemOnDb, itemToProcess);
+                        _comparisonService.UpdateComparisonToProcessing(contentId, StatusEnum.DONE);
+                    }
+                    if (itemOnDb.Direction == "left" && direction == "right")
+                    {
+                        _comparisonService.SaveProcessResult(itemToProcess, itemOnDb);
+                        _comparisonService.UpdateComparisonToProcessing(contentId, StatusEnum.DONE);
+                    }
+
+                }).Start();
+                return true;
             }
+            return false;
         }
 
 

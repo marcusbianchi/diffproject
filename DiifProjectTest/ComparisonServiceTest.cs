@@ -16,8 +16,8 @@ namespace DiifProject.Test
         {
             Random rnd = new Random();
             var id = rnd.Next();
-            var mockComparisonRepository = new Mock<IComparisonRepository>();
-            mockComparisonRepository
+            var mockProcessResultRepository = new Mock<IProcessResultRepository>();
+            mockProcessResultRepository
                 .Setup(x => x.SaveResult(It.IsAny<ProcessResult>()))
                 .Returns((ProcessResult processResult) =>
                 {
@@ -30,7 +30,7 @@ namespace DiifProject.Test
                 });
 
 
-            var comparisonService = new ComparisonService(mockComparisonRepository.Object);
+            var comparisonService = new ComparisonService(mockProcessResultRepository.Object);
             var comparisonResult =  comparisonService.CreateNewComparison("teste");
 
             Assert.Equal(id, comparisonResult.ProcessResultId);
@@ -43,9 +43,9 @@ namespace DiifProject.Test
         {
             Random rnd = new Random();
             var id = rnd.Next();
-            var mockComparisonRepository = new Mock<IComparisonRepository>();
+            var mockProcessResultRepository = new Mock<IProcessResultRepository>();
 
-            mockComparisonRepository
+            mockProcessResultRepository
                 .Setup(x => x.UpdateResultByContentId(It.IsAny<ProcessResult>(), It.IsAny<string>()))
                 .Returns((ProcessResult processResult, string contentId) =>
                 {
@@ -57,7 +57,7 @@ namespace DiifProject.Test
                     };
                 });
 
-            mockComparisonRepository
+            mockProcessResultRepository
                .Setup(x => x.GetResultByContentId(It.IsAny<string>()))
                .Returns((string contentId) =>
                {
@@ -69,7 +69,7 @@ namespace DiifProject.Test
                });
 
 
-            var comparisonService = new ComparisonService(mockComparisonRepository.Object);
+            var comparisonService = new ComparisonService(mockProcessResultRepository.Object);
             var comparisonResult = comparisonService.UpdateComparisonToProcessing("teste",StatusEnum.PROCESSED_FIRST);
 
             Assert.Equal(id, comparisonResult.ProcessResultId);
@@ -82,7 +82,7 @@ namespace DiifProject.Test
         {
             Random rnd = new Random();
             var id = rnd.Next();
-            var mockComparisonRepository = new Mock<IComparisonRepository>();
+            var mockComparisonRepository = new Mock<IProcessResultRepository>();
             mockComparisonRepository
                 .Setup(x => x.UpdateResultByContentId(It.IsAny<ProcessResult>(), It.IsAny<string>()))
                 .Returns((ProcessResult processResult, string contentId) => processResult);

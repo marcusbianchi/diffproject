@@ -8,22 +8,23 @@ using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Dapper;
 using System.Data;
-using Dapper.Contrib.Extensions;
 using System.Data.SQLite;
+using System.IO;
+using System.Reflection;
 
-namespace DiffProject.Service.Services
+namespace DiffProject.Service.Repositories
 {
-    public class ComparisonRepository : IComparisonRepository
+    public class ProcessResultRepository : IProcessResultRepository
     {
-        private readonly IConfiguration _configuration;
-        public ComparisonRepository(IConfiguration configuration)
+        private readonly string _dbFilePath;
+        public ProcessResultRepository(IConfiguration configuration)
         {
-            _configuration = configuration;
+            _dbFilePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
+                + configuration.GetConnectionString("ProcessContext");
         }
         public ProcessResult GetResultByContentId(string contentId)
         {
-            var dbFilePath = _configuration.GetConnectionString("ProcessContext");
-            using (IDbConnection conn = new SQLiteConnection(string.Format("Data Source={0};Version=3;", dbFilePath)))
+            using (IDbConnection conn = new SQLiteConnection(string.Format("Data Source={0};Version=3;", _dbFilePath)))
             {
                 string selectQuery = "SELECT ProcessResultId, ContentId, status, IsEqual, IsEqualSize " +
                     "FROM ProcessResult WHERE contentId = @contentId";
@@ -35,8 +36,7 @@ namespace DiffProject.Service.Services
 
         public ProcessResult SaveResult(ProcessResult processResult)
         {
-            var dbFilePath = _configuration.GetConnectionString("ProcessContext");
-            using (IDbConnection conn = new SQLiteConnection(string.Format("Data Source={0};Version=3;", dbFilePath)))
+            using (IDbConnection conn = new SQLiteConnection(string.Format("Data Source={0};Version=3;", _dbFilePath)))
             {
                 string insertQuery = @"INSERT INTO ProcessResult ([ContentId], [status], [IsEqual], [IsEqualSize]) VALUES (@ContentId, @status, @IsEqual, @IsEqualSize)";
                 conn.Open();
@@ -47,13 +47,12 @@ namespace DiffProject.Service.Services
 
         public ProcessResult UpdateResultByContentId(ProcessResult processResult, string contentId)
         {
-            var dbFilePath = _configuration.GetConnectionString("ProcessContext");
-            using (IDbConnection conn = new SQLiteConnection(string.Format("Data Source={0};Version=3;", dbFilePath)))
+            using (IDbConnection conn = new SQLiteConnection(string.Format("Data Source={0};Version=3;", _dbFilePath)))
             {
                 string updateQuery = @"UPDATE ProcessResult SET ContentId = @ContentId, status = @status , IsEqual = @IsEqual, IsEqualSize = @IsEqualSize  WHERE contentId = " + contentId;
                 conn.Open();
                 var result = conn.Execute(updateQuery, processResult);
-                return GetResultByContentId(contentId); ;
+                return GetResultByContentId(contentId);
             }
         }
     }

@@ -1,16 +1,12 @@
 ﻿using DiffProject.Services.Interfaces;
 using DiffProject.Services.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiffProject.Services.Services
 {
     public class ComparisonService : IComparisonService
     {
-        private readonly IComparisonRepository _comparisonRepository;
-        public ComparisonService(IComparisonRepository comparisonRepository)
+        private readonly IProcessResultRepository _comparisonRepository;
+        public ComparisonService(IProcessResultRepository comparisonRepository)
         {
             _comparisonRepository = comparisonRepository;
         }

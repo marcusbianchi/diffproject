@@ -17,14 +17,14 @@ namespace DiifProject.Test
         {
             Random rnd = new Random();
             var id = rnd.Next();
-            var mockDataRepository = new Mock<IDataRepository>();
+            var mockItemToProcessRepository = new Mock<IItemToProcessRepository>();
             var mockHashService = new Mock<IHashService>();
             mockHashService.Setup(x => x.CreateHash(It.IsAny<string>())).Returns("70A4B9F4707D258F559F91615297A3EC");
             var mockComparisonService = new Mock<IComparisonService>();
-            mockDataRepository.Setup(x => x.GetDataFromDbById(It.IsAny<String>())).ReturnsAsync(() => null);
-            var mockomparisonRepository = new Mock<IComparisonRepository>();
-            mockDataRepository.Setup(x => x.GetDataFromDbById(It.IsAny<String>())).ReturnsAsync(() => null);
-            var processDataService = new ProcessDataService(mockDataRepository.Object, mockHashService.Object, mockComparisonService.Object, mockomparisonRepository.Object);
+            mockItemToProcessRepository.Setup(x => x.GetDataFromDbById(It.IsAny<String>())).ReturnsAsync(() => null);
+            var mockomparisonRepository = new Mock<IProcessResultRepository>();
+            mockItemToProcessRepository.Setup(x => x.GetDataFromDbById(It.IsAny<String>())).ReturnsAsync(() => null);
+            var processDataService = new ProcessDataService(mockItemToProcessRepository.Object, mockHashService.Object, mockComparisonService.Object, mockomparisonRepository.Object);
             var result = await processDataService.ProcessDataAsync("Teste", "testeID", "left");
 
             Assert.True(result);
@@ -35,18 +35,18 @@ namespace DiifProject.Test
         {
             Random rnd = new Random();
             var id = rnd.Next();
-            var mockDataRepository = new Mock<IDataRepository>();
+            var mockItemToProcessRepository = new Mock<IItemToProcessRepository>();
             var mockHashService = new Mock<IHashService>();
             mockHashService.Setup(x => x.CreateHash(It.IsAny<string>())).Returns("70A4B9F4707D258F559F91615297A3EC");
             var mockComparisonService = new Mock<IComparisonService>();
-            mockDataRepository.Setup(x => x.GetDataFromDbById(It.IsAny<String>())).ReturnsAsync(() => new ItemToProcess
+            mockItemToProcessRepository.Setup(x => x.GetDataFromDbById(It.IsAny<String>())).ReturnsAsync(() => new ItemToProcess
             {
                 ContentId = "Teste",
                 Direction = "right",
                 ItemToProcessId = id
             });
-            var mockomparisonRepository = new Mock<IComparisonRepository>();
-            var processDataService = new ProcessDataService(mockDataRepository.Object, mockHashService.Object, mockComparisonService.Object, mockomparisonRepository.Object);
+            var mockomparisonRepository = new Mock<IProcessResultRepository>();
+            var processDataService = new ProcessDataService(mockItemToProcessRepository.Object, mockHashService.Object, mockComparisonService.Object, mockomparisonRepository.Object);
             var result = await processDataService.ProcessDataAsync("Teste", "testeID", "left");
 
             Assert.True(result);
@@ -57,23 +57,23 @@ namespace DiifProject.Test
         {
             Random rnd = new Random();
             var id = rnd.Next();
-            var mockDataRepository = new Mock<IDataRepository>();
+            var mockItemToProcessRepository = new Mock<IItemToProcessRepository>();
             var mockHashService = new Mock<IHashService>();
             mockHashService.Setup(x => x.CreateHash(It.IsAny<string>())).Returns("70A4B9F4707D258F559F91615297A3EC");
             var mockComparisonService = new Mock<IComparisonService>();
-            mockDataRepository.Setup(x => x.GetDataFromDbById(It.IsAny<String>())).ReturnsAsync(() =>
+            mockItemToProcessRepository.Setup(x => x.GetDataFromDbById(It.IsAny<String>())).ReturnsAsync(() =>
             new ItemToProcess
             {
                 ContentId = "Teste",
                 Direction = "left",
                 ItemToProcessId = id
             });
-            var mockomparisonRepository = new Mock<IComparisonRepository>();
+            var mockomparisonRepository = new Mock<IProcessResultRepository>();
             mockomparisonRepository.Setup(x => x.GetResultByContentId(It.IsAny<string>())).Returns(() =>new ProcessResult
             {
                 ContentId = "Teste"
             });
-            var processDataService = new ProcessDataService(mockDataRepository.Object, mockHashService.Object, mockComparisonService.Object, mockomparisonRepository.Object);
+            var processDataService = new ProcessDataService(mockItemToProcessRepository.Object, mockHashService.Object, mockComparisonService.Object, mockomparisonRepository.Object);
             var result = await processDataService.ProcessDataAsync("Teste", "testeID", "left");
 
             Assert.False(result);

@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -11,16 +12,37 @@ using System.Threading.Tasks;
 
 namespace DiffProject.WebAPI
 {
+    /// <summary>
+    /// Class to create a new SQLLiteDBForTheProject
+    /// </summary>
     public class DbManager
     {
+        /// <summary>
+        /// Acceess to Config locations
+        /// </summary>
         private readonly IConfiguration _configuration;
-        public DbManager(IConfiguration configuration)
+        private readonly IHostingEnvironment _env;
+        /// <summary>
+        /// Construct the Manager to create DB
+        /// </summary>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        /// <param name="env">Provides information about the web hosting environment an application is running in.</param>
+        public DbManager(IConfiguration configuration, IHostingEnvironment env)
         {
             _configuration = configuration;
+            _env = env;
         }
-        public IDbConnection CreateDb()
+
+        /// <summary>
+        /// Create the DB File 
+        /// </summary>
+        public void CreateDb()
         {
             var dbFilePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)  + _configuration.GetConnectionString("ProcessContext");
+            if (_env.IsDevelopment())
+            {
+                File.Delete(dbFilePath);
+            }
             if (!File.Exists(dbFilePath))
             {
                 SQLiteConnection.CreateFile(dbFilePath);
@@ -28,9 +50,13 @@ namespace DiffProject.WebAPI
             var dbConnection = new SQLiteConnection(string.Format(
                 "Data Source={0};Version=3;", dbFilePath));
             CreateTables(dbConnection);
-            return dbConnection;
         }
 
+
+        /// <summary>
+        /// Create the Required Tables for the Project
+        /// </summary>
+        /// <param name="dbConnection">Object to Connect to the Database</param>
         public void CreateTables(IDbConnection dbConnection)
         {
             using (var connection = dbConnection)
