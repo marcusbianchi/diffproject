@@ -39,10 +39,14 @@ namespace DiffProject.WebAPI
         public void CreateDb()
         {
             var dbFilePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)  + _configuration.GetConnectionString("ProcessContext");
+
+            //Delete previous data if in dev mode
             if (_env.IsDevelopment())
             {
                 File.Delete(dbFilePath);
             }
+
+            //create new DB file
             if (!File.Exists(dbFilePath))
             {
                 SQLiteConnection.CreateFile(dbFilePath);

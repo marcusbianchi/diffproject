@@ -15,6 +15,7 @@ namespace DiffProject.Services.Services
         }
         public ProcessResult CreateNewComparison(string contentId)
         {
+            //Creates a new Process result
             var processResult = new ProcessResult
             {
                 ContentId = contentId,
@@ -28,6 +29,7 @@ namespace DiffProject.Services.Services
             var processResult = _comparisonRepository.GetResultByContentId(itemToProcessRight.ContentId);
             processResult.IsEqual = itemToProcessRight.Hash == itemToProcessLeft.Hash;
             processResult.IsEqualSize = itemToProcessRight.Size == itemToProcessLeft.Size;
+            //if same size find the difference
             if (processResult.IsEqualSize)
             {
                 var diff = _diffenceSearchService.GetDifferences(itemToProcessRight.Text, itemToProcessLeft.Text, itemToProcessRight.Size);
@@ -39,6 +41,7 @@ namespace DiffProject.Services.Services
 
         public ProcessResult UpdateComparisonToProcessing(string contentId, StatusEnum status)
         {
+            //Change a processing status
             var processResult = _comparisonRepository.GetResultByContentId(contentId);
             processResult.status = status;
             return _comparisonRepository.UpdateResultByContentId(processResult, contentId);

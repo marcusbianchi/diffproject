@@ -21,7 +21,7 @@ namespace DiffProject.Test
         [Fact]
         public void ShouldReturnHashedMD5StringBigText()
         {
-            var hashedText = "70A4B9F4707D258F559F91615297A3EC";
+            string hashedText = "8635A37E44944B34737AE06C7403C837";
             var big_1 = File.ReadAllText(@".\TestSamples\big_1.txt", Encoding.UTF8);
             var hashService = new HashService();
             var hash = hashService.CreateHash(big_1);

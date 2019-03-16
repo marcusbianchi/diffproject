@@ -21,13 +21,13 @@ namespace DiffProject.Services.Services
             {
                 fromFirst = first[i];
                 fromSecond = second[i];
-                if (!IsInDiff && fromFirst != fromSecond)
+                if (!IsInDiff && fromFirst != fromSecond) //new in difference
                 {
                     IsInDiff = true;
                     sizeCount++;
                     difPosition = i;
                 }
-                else if (IsInDiff && fromFirst == fromSecond)
+                else if (IsInDiff && fromFirst == fromSecond) // end of Difference
                 {
                     Difference diff = new Difference
                     {
@@ -39,12 +39,12 @@ namespace DiffProject.Services.Services
                     sizeCount = 0;
                     difPosition = 0;
                 }
-                else if (IsInDiff && fromFirst != fromSecond)
+                else if (IsInDiff && fromFirst != fromSecond) //Still in difference
                 {
                     sizeCount++;
                 }
             }
-            if (IsInDiff)
+            if (IsInDiff) //Process the last char if it was still a difference save to array
             {
                 Difference diff = new Difference
                 {

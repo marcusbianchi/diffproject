@@ -30,11 +30,13 @@ namespace DiffProject.Services.Services
             };
             var currenResult = _comparisonRepository.GetResultByContentId(contentId);
             var itemOnDb = await _itemToProcessRepository.GetDataFromDbById(contentId);
+            //If no item in the DB create new Process
             if (currenResult == null)
             {
                 SaveNewContentToDb(content, contentId, itemToProcess);
                 return true;
             }
+            //Process if already in DB
             if ((itemOnDb.Direction == "right" && direction == "left") || (itemOnDb.Direction == "left" && direction == "right"))
             {
                 return ProcessContentAlreadyOnDb(content, contentId, direction, itemToProcess, itemOnDb);
@@ -44,6 +46,7 @@ namespace DiffProject.Services.Services
 
         private void SaveNewContentToDb(string content, string contentId, ItemToProcess itemToProcess)
         {
+            //Save the Id in the data base and start the processing of new item async
             _comparisonService.CreateNewComparison(contentId);
             new Thread(() =>
             {
@@ -57,17 +60,19 @@ namespace DiffProject.Services.Services
         private bool ProcessContentAlreadyOnDb(string content, string contentId, string direction, ItemToProcess itemToProcess, ItemToProcess itemOnDb)
         {
             var currenResult = _comparisonRepository.GetResultByContentId(contentId);
+            //If item already done returns if new start thread
             if (currenResult.status == StatusEnum.NEW || currenResult.status == StatusEnum.PROCESSED_FIRST)
             {
                 _comparisonService.UpdateComparisonToProcessing(contentId, StatusEnum.PROCESSED_SECOND_STARTED);
                 new Thread(() =>
                 {
-
+                    //wait while the previuos value is processed
                     while (currenResult.status != StatusEnum.PROCESSED_FIRST)
                     {
                         currenResult = _comparisonRepository.GetResultByContentId(contentId);
                         Thread.Sleep(100);
                     }
+                    //if same size calculate the hash to compare contents
                     if (itemToProcess.Size == itemOnDb.Size)
                         itemToProcess.Hash = _hashService.CreateHash(content);
                     else
