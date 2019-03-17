@@ -51,6 +51,6 @@ The data can also be acessed on the User interface accessing the following link 
 - http://localhost:5000/swagger/index.html
 
 ## Future Improvments
-- Increase database decoumpling in the project
+- Increase database decoupling in the project (DONE!)
 - Implement MapReduce to increase the processing speed of the Diff process
 - Create a Docker file to the solution
