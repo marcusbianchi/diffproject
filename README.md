@@ -40,7 +40,7 @@ The example below show how to do it with curl (Requires the instalation of curl 
  curl -H "Content-Type: application/json" -X POST http://localhost:5000/v1/test/left -d "{\"Name\":\"Test Value\"}"
 ```
 
-### Queryng data
+### Querying data
 
 The data can be queried on:
 - http://localhost:5000/v1/{id}
@@ -50,7 +50,7 @@ Where Id is the Id that was given to the process.
 The data can also be acessed on the User interface accessing the following link on the browser.
 - http://localhost:5000/swagger/index.html
 
-## Future Improvments
+## Future Improvements
 - Increase database decoupling in the project (DONE!)
 - Implement MapReduce to increase the processing speed of the Diff process
 - Create a Docker file to the solution
