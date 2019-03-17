@@ -2,6 +2,7 @@
 using DiffProject.Service.Repositories;
 using DiffProject.Services.Interfaces;
 using DiffProject.Services.Services;
+using DiffProject.WebAPI.Database;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +27,7 @@ namespace DiffProject.WebAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<IDbManager, DbManager>();
             services.AddTransient<IDiffenceSearchService, DiffenceSearchService>();
             services.AddTransient<IProcessResultRepository, ProcessResultRepository>();
             services.AddTransient<IComparisonService, ComparisonService>();
@@ -55,8 +57,9 @@ namespace DiffProject.WebAPI
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             //Create de SQL Lite DB
-            var dbManager = new DbManager(Configuration, env);
-            dbManager.CreateDb();
+            var dbManager = new DbManager(Configuration);
+            dbManager.CreateDb(env);
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

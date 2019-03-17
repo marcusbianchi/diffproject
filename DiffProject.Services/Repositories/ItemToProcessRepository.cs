@@ -17,16 +17,15 @@ namespace DiffProject.Service.Repositories
 {
     public class ItemToProcessRepository : IItemToProcessRepository
     {
-        private readonly string _dbFilePath;
-        public ItemToProcessRepository(IConfiguration configuration)
+        private readonly IDbManager _DbManager;
+        public ItemToProcessRepository(IDbManager DbManager)
         {
-            _dbFilePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
-                + configuration.GetConnectionString("ProcessContext");
+            _DbManager = DbManager;
         }
 
         public async Task<ItemToProcess> GetDataFromDbById(string ContentId)
         {
-            using (IDbConnection conn = new SQLiteConnection(string.Format("Data Source={0};Version=3;", _dbFilePath)))
+            using (IDbConnection conn = _DbManager.CreateConnection())
             {
                 string sQuery = "SELECT ItemToProcessId, ContentId, Direction, Size, Hash,Text " +
                     "FROM ItemToProcess WHERE contentId = @contentId";
@@ -38,7 +37,7 @@ namespace DiffProject.Service.Repositories
 
         public async Task SaveDataToDB(ItemToProcess itemToProcess)
         {
-            using (IDbConnection conn = new SQLiteConnection(string.Format("Data Source={0};Version=3;", _dbFilePath)))
+            using (IDbConnection conn = _DbManager.CreateConnection())
             {
                 string insertQuery = @"INSERT INTO ItemToProcess ([ContentId], [Direction], [Size],[Hash],[Text]) VALUES ( @ContentId, @Direction, @Size, @Hash,@Text)";
                 conn.Open();

@@ -17,15 +17,15 @@ namespace DiffProject.Service.Repositories
 {
     public class ProcessResultRepository : IProcessResultRepository
     {
-        private readonly string _dbFilePath;
-        public ProcessResultRepository(IConfiguration configuration)
+        private readonly IDbManager _DbManager;
+        public ProcessResultRepository(IDbManager DbManager)
         {
-            _dbFilePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
-                + configuration.GetConnectionString("ProcessContext");
+            _DbManager = DbManager;
         }
+
         public ProcessResult GetResultByContentId(string contentId)
         {
-            using (IDbConnection conn = new SQLiteConnection(string.Format("Data Source={0};Version=3;", _dbFilePath)))
+            using (IDbConnection conn = _DbManager.CreateConnection())
             {
                 string selectQuery = "SELECT ProcessResultId, ContentId, status, IsEqual, IsEqualSize,DifferencesSerialized " +
                     "FROM ProcessResult WHERE contentId = @contentId";
@@ -39,7 +39,7 @@ namespace DiffProject.Service.Repositories
 
         public ProcessResult SaveResult(ProcessResult processResult)
         {
-            using (IDbConnection conn = new SQLiteConnection(string.Format("Data Source={0};Version=3;", _dbFilePath)))
+            using (IDbConnection conn = _DbManager.CreateConnection())
             {
                 string insertQuery = @"INSERT INTO ProcessResult ([ContentId], [status], [IsEqual], [IsEqualSize]) VALUES (@ContentId, @status, @IsEqual, @IsEqualSize)";
                 conn.Open();
@@ -52,7 +52,7 @@ namespace DiffProject.Service.Repositories
         {
             if(processResult.Differences != null)
                 processResult.DifferencesSerialized = JsonConvert.SerializeObject(processResult.Differences);
-            using (IDbConnection conn = new SQLiteConnection(string.Format("Data Source={0};Version=3;", _dbFilePath)))
+            using (IDbConnection conn = _DbManager.CreateConnection())
             {
                 string updateQuery = @"UPDATE ProcessResult SET ContentId = @ContentId, status = @status , IsEqual = @IsEqual, IsEqualSize = @IsEqualSize, DifferencesSerialized = @DifferencesSerialized  WHERE contentId = " + contentId;
                 conn.Open();

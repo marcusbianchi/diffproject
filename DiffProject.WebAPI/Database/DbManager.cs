@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using DiffProject.Services.Interfaces;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -10,38 +11,33 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace DiffProject.WebAPI
+namespace DiffProject.WebAPI.Database
 {
     /// <summary>
     /// Class to create a new SQLLiteDBForTheProject
     /// </summary>
-    public class DbManager
+    public class DbManager : IDbManager
     {
         /// <summary>
         /// Acceess to Config locations
         /// </summary>
         private readonly IConfiguration _configuration;
-        private readonly IHostingEnvironment _env;
         /// <summary>
         /// Construct the Manager to create DB
         /// </summary>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        /// <param name="env">Provides information about the web hosting environment an application is running in.</param>
-        public DbManager(IConfiguration configuration, IHostingEnvironment env)
+
+        public DbManager(IConfiguration configuration)
         {
             _configuration = configuration;
-            _env = env;
         }
 
-        /// <summary>
-        /// Create the DB File 
-        /// </summary>
-        public void CreateDb()
+        public void CreateDb(IHostingEnvironment env)
         {
-            var dbFilePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)  + _configuration.GetConnectionString("ProcessContext");
+            var dbFilePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + _configuration.GetConnectionString("ProcessContext");
 
             //Delete previous data if in dev mode
-            if (_env.IsDevelopment())
+            if (env.IsDevelopment())
             {
                 File.Delete(dbFilePath);
             }
@@ -57,10 +53,7 @@ namespace DiffProject.WebAPI
         }
 
 
-        /// <summary>
-        /// Create the Required Tables for the Project
-        /// </summary>
-        /// <param name="dbConnection">Object to Connect to the Database</param>
+
         public void CreateTables(IDbConnection dbConnection)
         {
             using (var connection = dbConnection)
@@ -85,6 +78,14 @@ namespace DiffProject.WebAPI
                 );";
                 connection.Execute(sql);
             }
+        }
+
+
+        public IDbConnection CreateConnection()
+        {
+            var _dbFilePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)
+                + _configuration.GetConnectionString("ProcessContext");
+            return new SQLiteConnection(string.Format("Data Source={0};Version=3;", _dbFilePath));
         }
     }
 }
